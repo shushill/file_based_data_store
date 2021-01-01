@@ -26,4 +26,4 @@ The data store will support the following functional requirements.
    3. External database store: File based (a persistent store)
    4. Operating System used: Kali Linux OS
    5. Compiled using: g++ -std=c++11 key_value_file.cpp -pthread && ./a.out (screenshot given above)
-
+   6. Time to Live (TTL) is varying and can be taken accordingly like 1000 seconds or 10000 seconds. etc..and so on
