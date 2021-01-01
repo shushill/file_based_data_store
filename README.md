@@ -23,6 +23,6 @@ The data store will support the following functional requirements.
    1. Language: C++ 11 
    2. Library used: Multithreading in c++
    3. External database store: File based (a persistent store)
-   4  Operating System used: Kali Linux OS
+   4. Operating System used: Kali Linux OS
    5. Compiled using: g++ -std=c++11 key_value_file.cpp -pthread && ./a.out (screenshot given above)
 
