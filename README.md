@@ -2,7 +2,7 @@
 
 ![compilation](https://github.com/shushill/file_based_data_store/blob/main/Screenshot%20from%202021-01-01%2020-23-15.png)
 
-#file based key value data store
+## file based key value data store
 
 The data store will support the following functional requirements.
 
