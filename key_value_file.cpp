@@ -13,7 +13,7 @@ class fileDb{
 public:
     fileDb(){
          unique_lock<std::mutex> ul(door);
-        file.open("db.json", fstream::in | fstream::out | fstream::ate );
+        file.open("db.json", fstream::in | fstream::out | fstream::ate );             // open a file which is used as a data store to store key value pair
         if(!file){
             cout<<"File not present or error in file opeining "<<endl;
             cout<<"Make a file name of db.json"<<endl;
@@ -91,7 +91,7 @@ public:
 
     }
     void read(string key, int time_to_live){                      
-        unique_lock<std::mutex> ul(door);
+        unique_lock<std::mutex> ul(door);           //unique ownership by one thead at a time only ... only one thread can use this function at a time 
         if(!file){
             cout<<"File not present"<<endl;
             return;
@@ -103,32 +103,32 @@ public:
         auto end_mark = file.tellg();
         file.seekg(0, fstream::beg);
 
-         file>>k;
+         file>>k;                                      // read json objects from file
            while(file.tellg() != (end_mark)){
-            if(k.count(key)){
-                auto object = k[key];
+            if(k.count(key)){                                       // if key is present in file
+                auto object = k[key];                               // read value of key which is found
                 long long time_of_key_created = object.at(0);
                 auto ct = std::chrono::system_clock::now();
                 ct = time_point_cast<std::chrono::seconds>(ct);
                 auto d = ct.time_since_epoch();
                 d = duration_cast<seconds>(d);
-                long long time_now = d.count();
-                long long time_spent = (time_now-time_of_key_created)/1000000000;
-                if(time_spent <= time_to_live){
-                    string st = object[1].get<std::string>();
-                    cout<<"key :"<<key<<"\n"<<"value : "<<st<<endl;
+                long long time_now = d.count();                                        // time in second when the key is found
+                long long time_spent = (time_now-time_of_key_created)/1000000000;      // time in second round off to 3 digits
+                if(time_spent <= time_to_live){                                     
+                    string st = object[1].get<std::string>();                         // read value of key 
+                    cout<<"key :"<<key<<"\n"<<"value : "<<st<<endl;                    // output key value pair which is found
                     return;
                 }else{
-                    cout<<"Key Expires because time to live has exceeded"<<endl;
+                    cout<<"Key Expires because time to live has exceeded"<<endl;               
                     return;
                 }
             }
             auto mark = file.tellg();
             file.seekg(mark);
-            if( (end_mark - mark)<5){
+            if( (end_mark - mark)<5){                             // arbitrary value used to loop out if if it has reached end of file
                 break;
             }
-           file>>k;
+           file>>k;                                             // if not reached end of file then read next json objet
         }
         cout<<"Key is not available in file"<<endl;
     }
@@ -145,19 +145,19 @@ public:
         auto end_mark = file.tellg();
         file.seekg(0, fstream::beg);
 
-         file>>k;
+         file>>k;                                                // read json objects from file
            while(file.tellg() != (end_mark)){
-            if(k.count(key)){
-                auto object = k[key];
+            if(k.count(key)){                                       // if key is present in file
+                auto object = k[key];                               // read value of key which is found
                 long long time_of_key_created = object.at(0);
                 auto ct = std::chrono::system_clock::now();
                 ct = time_point_cast<std::chrono::seconds>(ct);
                 auto d = ct.time_since_epoch();
                 d = duration_cast<seconds>(d);
                 long long time_now = d.count();
-                long long time_spent = (time_now-time_of_key_created)/1000000000;
-                if(time_spent <= time_to_live){
-                    k.erase(key);
+                long long time_spent = (time_now-time_of_key_created)/1000000000;         
+                if(time_spent <= time_to_live){                                          
+                    k.erase(key);                                                           // delete a key from file
                     cout<<"Key has been removed from the file"<<endl;
                     return;
                 }else{
@@ -167,10 +167,10 @@ public:
             }
             auto mark = file.tellg();
             file.seekg(mark);
-            if( (end_mark - mark)<5){
+            if( (end_mark - mark)<5){                              // arbitrary value used to loop out if if it has reached end of file
                 break;
             }
-           file>>k;
+           file>>k;                                                 // if not reached end of file then read next json objet
         }
         cout<<"Key is not available in file"<<endl;
     }
