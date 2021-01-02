@@ -23,7 +23,7 @@ public:
         file.close();
     }
     void create(string key, string value){
-         unique_lock<std::mutex> ul(door);
+         unique_lock<std::mutex> ul(door);        // unique ownership of the resourse by one thread at a time only 
          if(!file){
              cout<<"File not present"<<endl;
              return;
@@ -40,11 +40,13 @@ public:
               cout<<"Memory limit of 1 GB exceeded"<<endl;
               return;
           }
+	    //check key size limit
           if(key.size() > 32){
               cout<<"Key size capped at 32 Char exceeded "<<endl;
               cout<<"Enter key less than 32 char"<<endl;
               return;
           }
+	    //check value size limit
           if(value.size() > 16 *1024){
               cout<<"Value limit Exceeded"<<endl;
               return;
@@ -53,18 +55,18 @@ public:
           file.seekg(0, fstream::end);
           auto end_mark = file.tellg();
           file.seekg(0, fstream::beg);
-
+	// scan all the json objects from file
            file>>k;
 
-             while(file.tellg() != (end_mark)){
-              if(k.count(key)){
+             while(file.tellg() != (end_mark)){                   // check loop to see if it has reached end of file limit
+              if(k.count(key)){                                     //if key is already created
                   cout<<"Key is already present"<<endl;
                   cout<<"Read the value of key using read func"<<endl;
                   return;
               }
               auto mark = file.tellg();
               file.seekg(mark);
-              if( (end_mark - mark)<5){
+              if( (end_mark - mark)<5){                 // arbitrary value to seek if it has reached end of file then break the loop here
                   break;
               }
              file>>k;
@@ -72,23 +74,23 @@ public:
 
           }
           file.seekg(0, fstream::end);
-          unordered_map<string, pair<long long, string>> store;
+          unordered_map<string, pair<long long, string>> store;     // data structure used to store key value pair
           auto ct = std::chrono::system_clock::now();
           ct = time_point_cast<std::chrono::seconds>(ct);
           auto d = ct.time_since_epoch();
-          d = duration_cast<seconds>(d);
+          d = duration_cast<seconds>(d);           // present time in second used when the new key is created
 
           pair<long long, string> p;
           p.first = d.count();
           p.second = value;
           store[key] = p;
 
-          json j(store);
+          json j(store);                         // deserialization
           file<<std::setw(4)<<j<<endl;
 
 
     }
-    void read(string key, int time_to_live){
+    void read(string key, int time_to_live){                      
         unique_lock<std::mutex> ul(door);
         if(!file){
             cout<<"File not present"<<endl;
@@ -182,12 +184,12 @@ int main(){
     //freopen("input.txt", "r", stdin);
 	//freopen("output.txt", "w", stdout);
 
-    fileDb f;
-    std::thread t(&fileDb::create, &f, "p5", "sushil");
+    fileDb f;                                                           // object created
+    std::thread t(&fileDb::create, &f, "p5", "sushil");                 // function to create a key -value pair 
     t.join();
-    std::thread t1(&fileDb::read, &f, "p5", 1000);
+    std::thread t1(&fileDb::read, &f, "p5", 1000);                      // function to read a key from file
     t1.join();
-    std::thread t2(&fileDb::dellete, &f, "p5", 10000);
+    std::thread t2(&fileDb::dellete, &f, "p5", 10000);                 // function to delete a key from file
     t2.join();
 
 
